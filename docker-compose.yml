@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: bank_postgres
+    environment:
+      POSTGRES_USER: bank
+      POSTGRES_PASSWORD: bank123
+      POSTGRES_DB: core_banking
+    command: ["postgres", "-c", "wal_level=logical"]
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d
+
+volumes:
+  pgdata:
