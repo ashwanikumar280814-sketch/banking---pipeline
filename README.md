@@ -23,7 +23,7 @@ flowchart LR
 - [x] Postgres schema (customers, accounts, merchants, transactions, ledger_entries)
 - [x] Data simulator with messy data (duplicates, late events, invalid values, updates)
 - [x] CDC with Debezium and Redpanda (connector running)
-- [ ] Bronze layer (Python consumer)
+- [x] Bronze layer (Python consumer)
 - [ ] Silver layer (dedup, validation, quarantine, PII masking)
 - [ ] Fraud detection rules
 - [ ] Gold layer with dbt (star schema, SCD Type 2)
