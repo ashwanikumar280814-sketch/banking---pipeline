@@ -24,7 +24,7 @@ flowchart LR
 - [x] Data simulator with messy data (duplicates, late events, invalid values, updates)
 - [x] CDC with Debezium and Redpanda (connector running)
 - [x] Bronze layer (Python consumer)
-- [ ] Silver layer (dedup, validation, quarantine, PII masking)
+- [x] Silver layer (dedup, validation, quarantine, PII masking)
 - [ ] Fraud detection rules
 - [ ] Gold layer with dbt (star schema, SCD Type 2)
 - [ ] Reconciliation job
