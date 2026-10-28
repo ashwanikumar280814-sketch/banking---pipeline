@@ -25,7 +25,7 @@ flowchart LR
 - [x] CDC with Debezium and Redpanda (connector running)
 - [x] Bronze layer (Python consumer)
 - [x] Silver layer (dedup, validation, quarantine, PII masking)
-- [ ] Fraud detection rules
+- [x] Fraud detection rules
 - [ ] Gold layer with dbt (star schema, SCD Type 2)
 - [ ] Reconciliation job
 - [ ] Dashboard
