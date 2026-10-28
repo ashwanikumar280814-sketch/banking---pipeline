@@ -1,0 +1,12 @@
+name: 'banking_gold'
+version: '1.0.0'
+config-version: 2
+
+profile: 'banking'
+
+model-paths: ["models"]
+
+models:
+  banking_gold:
+    +materialized: table
+    +schema: gold

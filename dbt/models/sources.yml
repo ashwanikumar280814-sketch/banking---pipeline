@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: bronze
+    schema: bronze
+    tables:
+      - name: raw_events
+  - name: silver
+    schema: silver
+    tables:
+      - name: transactions
+      - name: customers_history
+      - name: accounts_history

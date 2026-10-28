@@ -1,0 +1,12 @@
+banking:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: host.docker.internal
+      port: 5432
+      user: bank
+      password: bank123
+      dbname: warehouse
+      schema: public
+      threads: 2
