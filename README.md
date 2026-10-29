@@ -26,7 +26,7 @@ flowchart LR
 - [x] Bronze layer (Python consumer)
 - [x] Silver layer (dedup, validation, quarantine, PII masking)
 - [x] Fraud detection rules
-- [ ] Gold layer with dbt (star schema, SCD Type 2)
+- [x] Gold layer with dbt (star schema, SCD Type 2, 14 tests)
 - [ ] Reconciliation job
 - [ ] Dashboard
 

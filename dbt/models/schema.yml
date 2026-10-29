@@ -1,0 +1,50 @@
+version: 2
+
+models:
+  - name: dim_merchant
+    columns:
+      - name: merchant_id
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_account
+    columns:
+      - name: account_id
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_customer
+    columns:
+      - name: customer_key
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+
+  - name: dim_date
+    columns:
+      - name: date_key
+        tests:
+          - unique
+          - not_null
+
+  - name: fact_transactions
+    columns:
+      - name: transaction_id
+        tests:
+          - unique
+          - not_null
+      - name: account_id
+        tests:
+          - relationships:
+              to: ref('dim_account')
+              field: account_id
+      - name: date_key
+        tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
