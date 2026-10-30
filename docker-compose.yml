@@ -47,6 +47,15 @@ services:
       CONFIG_STORAGE_REPLICATION_FACTOR: "1"
       OFFSET_STORAGE_REPLICATION_FACTOR: "1"
       STATUS_STORAGE_REPLICATION_FACTOR: "1"
-
+  metabase:
+    image: metabase/metabase:latest
+    container_name: bank_metabase
+    ports:
+      - "3000:3000"
+    environment:
+      MB_DB_FILE: /metabase-data/metabase.db
+    volumes:
+      - mbdata:/metabase-data
 volumes:
   pgdata:
+  mbdata:
