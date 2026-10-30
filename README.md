@@ -27,7 +27,7 @@ flowchart LR
 - [x] Silver layer (dedup, validation, quarantine, PII masking)
 - [x] Fraud detection rules
 - [x] Gold layer with dbt (star schema, SCD Type 2, 14 tests)
-- [ ] Reconciliation job
+- [x] Reconciliation job (core vs warehouse, 7 checks)
 - [ ] Dashboard
 
 ## Tech stack
