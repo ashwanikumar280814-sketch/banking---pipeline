@@ -59,3 +59,34 @@ Silver keeps one clean copy of each transaction and moves the repeated copies to
 
 - Duplicates are recognised by transaction ID only. If a source system sent two different transactions with the same ID, the second one would be quarantined as a duplicate.
 - Late events are only flagged. I did not build special logic to restate old reports when a late event arrives.
+
+## Drill 3: Schema change in the source database
+
+**Goal:** Check that adding a new column to a source table does not break the pipeline.
+
+**What I did**
+
+1. Added a new column to the source table: `ALTER TABLE transactions ADD COLUMN risk_flag text` in `core_banking`.
+2. Inserted one new transaction that fills the new column (transaction 1632, amount 777.77, `risk_flag` = REVIEW).
+3. Ran the Bronze loader, then rebuilt Silver, ran `dbt run`, and ran the reconciliation job.
+
+**Evidence**
+
+- The connector stayed RUNNING. The Bronze loader saved 1 new event.
+- `bronze.raw_events` contains the new field inside the JSON: transaction 1632, amount 777.77, `risk_flag` = REVIEW.
+- Silver: 1569 clean rows + 63 quarantined rows = 1632, which equals the core bank count.
+- Gold: `dbt run` finished with PASS=5 and ERROR=0, and `fact_transactions` has 1569 rows.
+- Reconciliation: 7 of 7 checks passed.
+
+**Result: PASS**
+
+The pipeline did not break when the source table got a new column.
+
+**Why it works**
+
+Debezium reads the change from the Postgres log and sends the whole row as JSON. Bronze stores that JSON as it is, so a new field is simply one more key in the JSON. Silver and Gold select only the columns they know, so an unknown new column is ignored and nothing fails.
+
+**Limits and trade-offs**
+
+- The new column `risk_flag` is stored in Bronze but is not yet used in Silver or Gold. To use it, I would add it to `silver.sql` and the dbt models.
+- This drill only covered adding a column. Renaming a column or changing its type could break Silver and would need a separate test.
