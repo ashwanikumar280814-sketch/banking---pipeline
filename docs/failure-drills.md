@@ -29,3 +29,33 @@ Debezium remembers how far it has read in the Postgres log (its offset). After a
 
 - If the connector stays down for a long time, Postgres keeps its log files on disk and they keep growing. In production this needs monitoring and an alert.
 - The simulator also creates duplicate and dirty rows on purpose. These are caught in Silver and kept in the quarantine table, not lost.
+
+## Drill 2: Duplicate and late events
+
+**Goal:** Check that duplicate events and late (out-of-order) events do not corrupt the clean tables.
+
+**What I did**
+
+1. The simulator (`simulator/live.py`) creates duplicate, late and dirty events on purpose.
+2. After Silver was rebuilt, I counted duplicates and late events, and looked at sample duplicate rows.
+3. I compared total rows with distinct transaction IDs in Gold.
+
+**Evidence**
+
+- `silver.transactions_quarantine`: 38 rows with reason DUPLICATE (27 before Drill 1, plus 11 duplicates created in Drill 1).
+- Sample duplicates caught: transaction 1003 (account 148, amount 9071.67), 1017 (account 32, amount 13542.27), 1028 (account 85, amount 8193.33).
+- `silver.transactions`: 19 rows flagged `is_late = true`.
+- `gold.fact_transactions`: 1568 total rows and 1568 distinct transaction IDs.
+
+**Result: PASS**
+
+No transaction is counted twice in Gold.
+
+**Why it works**
+
+Silver keeps one clean copy of each transaction and moves the repeated copies to the quarantine table with a reason, so nothing is silently deleted. Late events are kept, but marked with `is_late` and the original event time (`source_event_ts`), so analysts can still tell them apart.
+
+**Limits and trade-offs**
+
+- Duplicates are recognised by transaction ID only. If a source system sent two different transactions with the same ID, the second one would be quarantined as a duplicate.
+- Late events are only flagged. I did not build special logic to restate old reports when a late event arrives.
