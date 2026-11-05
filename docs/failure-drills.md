@@ -90,3 +90,35 @@ Debezium reads the change from the Postgres log and sends the whole row as JSON.
 
 - The new column `risk_flag` is stored in Bronze but is not yet used in Silver or Gold. To use it, I would add it to `silver.sql` and the dbt models.
 - This drill only covered adding a column. Renaming a column or changing its type could break Silver and would need a separate test.
+
+## Drill 4: Corrupted Gold table and backfill
+
+**Goal:** Check that a damaged Gold table is detected by the reconciliation job and can be rebuilt from Silver.
+
+**What I did**
+
+1. Deleted some rows from the Gold fact table on purpose: `DELETE FROM gold.fact_transactions WHERE transaction_id % 10 = 0`. This removed 159 rows (1569 to 1410).
+2. Ran the reconciliation job.
+3. Rebuilt Gold from Silver with `dbt run` (backfill).
+4. Ran the reconciliation job again.
+
+**Evidence**
+
+- Reconciliation after the damage: 5 of 7 checks passed. Two checks failed:
+  - `txn rows: silver = gold.fact_transactions`: expected 1569, actual 1410.
+  - `txn amount: silver = gold.fact_transactions`: expected 16106968.20, actual 14332691.12.
+- `dbt run` finished with PASS=5 and ERROR=0, and `fact_transactions` had 1569 rows again.
+- Reconciliation after the backfill: 7 of 7 checks passed.
+
+**Result: PASS**
+
+The damage was detected by an automatic check, and Gold was fully restored from Silver without touching the source database.
+
+**Why it works**
+
+Gold tables are built only from Silver by dbt, so they can be dropped and rebuilt at any time. The reconciliation job compares Gold with Silver and with the source database, so missing rows show up as failed checks.
+
+**Limits and trade-offs**
+
+- The reconciliation job runs only when I start it. In production it would run on a schedule and send an alert when a check fails.
+- The checks compare row counts and total amounts. A change that keeps both numbers the same (for example, two amounts swapped between rows) would not be caught.
